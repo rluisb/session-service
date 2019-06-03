@@ -5,6 +5,7 @@ import com.github.rluisb.session.api.dto.VoteDto;
 import com.github.rluisb.session.domain.model.Session;
 import com.github.rluisb.session.domain.model.VotingResult;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SessionService {
@@ -14,5 +15,7 @@ public interface SessionService {
     Optional<Session> executeVote(String sessionId, VoteDto vote);
 
     Optional<VotingResult> generateVotingResult(String sessionId);
+
+    List<Session> getAllSessions();
 
 }

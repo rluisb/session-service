@@ -1,14 +1,44 @@
 package com.github.rluisb.session.client;
 
 import com.github.rluisb.session.domain.model.Agenda;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-@FeignClient(name = "${agenda.service.name}", url = "${agenda.service.url}")
-public interface AgendaRestClient {
+import java.util.Collections;
 
-    @RequestMapping("/agenda/{id}")
-    Agenda getAgendaById(@PathVariable("id") String id);
+@Component
+public class AgendaRestClient {
+
+    @Value("${agenda.service.url}")
+    private String agendaServiceUrl;
+    private RestTemplate restTemplate;
+
+    public AgendaRestClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public Agenda getAgendaById(String agendaId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(agendaServiceUrl)
+                        .path("/agendas")
+                        .path("/")
+                        .path(agendaId);
+
+        return restTemplate.exchange(builder.toUriString(),
+                HttpMethod.GET, entity, Agenda.class)
+                .getBody();
+    }
+
 
 }

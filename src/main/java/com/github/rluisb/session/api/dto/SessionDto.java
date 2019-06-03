@@ -7,6 +7,8 @@ public class SessionDto {
     private String agendaId;
     private DurationTime durationTime;
 
+    public SessionDto() {
+    }
 
     public SessionDto(String agendaId) {
         this.agendaId = agendaId;

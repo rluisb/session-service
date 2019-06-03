@@ -11,8 +11,11 @@ import com.github.rluisb.session.service.AgendaService;
 import com.github.rluisb.session.service.SessionService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -64,5 +67,15 @@ public class SessionServiceImpl implements SessionService {
                 .map(Session::buildFrom)
                 .map(VotingResult::new)
                 .findFirst();
+    }
+
+    @Override
+    public List<Session> getAllSessions() {
+        return Stream.of(sessionRepository.findAll())
+                .filter(Objects::nonNull)
+                .filter(sessions -> !sessions.isEmpty())
+                .flatMap(Collection::parallelStream)
+                .map(Session::buildFrom)
+                .collect(Collectors.toList());
     }
 }

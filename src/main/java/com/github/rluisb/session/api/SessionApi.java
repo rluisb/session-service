@@ -2,8 +2,6 @@ package com.github.rluisb.session.api;
 
 import com.github.rluisb.session.api.dto.SessionDto;
 import com.github.rluisb.session.api.dto.VoteDto;
-import com.github.rluisb.session.domain.model.Session;
-import com.github.rluisb.session.domain.model.VotingResult;
 import com.github.rluisb.session.service.SessionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,32 +20,45 @@ public class SessionApi {
     }
 
     @PostMapping("/sessions")
-    public Optional<ResponseEntity<Session>> openVotingSession(@RequestBody SessionDto sessionDto) {
+    public ResponseEntity<?> openVotingSession(@RequestBody SessionDto sessionDto) {
         return Stream.of(sessionDto)
                 .filter(Objects::nonNull)
                 .map(sessionService::openSession)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ResponseEntity::ok)
-                .findFirst();
+                .findFirst()
+                .get();
     }
 
-    @PatchMapping("/sessions/{id}")
-    public Optional<ResponseEntity<Session>> executeVoteForSession(@PathVariable("id") String sessionId,
-                                                                   @RequestBody VoteDto voteDto) {
+    @PatchMapping("/sessions/{id}/vote")
+    public ResponseEntity<?> executeVoteForSession(@PathVariable("id") String sessionId,
+                                                   @RequestBody VoteDto voteDto) {
         return Stream.of(sessionService.executeVote(sessionId, voteDto))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ResponseEntity::ok)
-                .findFirst();
+                .findFirst()
+                .get();
     }
 
     @GetMapping("/sessions/{id}")
-    public Optional<ResponseEntity<VotingResult>> getVotingResultForSession(@PathVariable("id") String sessionId) {
+    public ResponseEntity<?> getVotingResultForSession(@PathVariable("id") String sessionId) {
         return Stream.of(sessionService.generateVotingResult(sessionId))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ResponseEntity::ok)
-                .findFirst();
+                .findFirst()
+                .get();
+    }
+
+    @GetMapping("/sessions")
+    public ResponseEntity<?> getAllSessions() {
+        return Stream.of(sessionService.getAllSessions())
+                .filter(Objects::nonNull)
+                .filter(sessions -> !sessions.isEmpty())
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .get();
     }
 }
