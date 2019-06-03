@@ -1,9 +1,14 @@
 package com.github.rluisb.session.api.dto;
 
 import com.github.rluisb.session.domain.model.DurationTime;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
+
+@Validated
 public class SessionDto {
 
+    @NotNull(message = "The agenda id can't be null.")
     private String agendaId;
     private DurationTime durationTime;
 

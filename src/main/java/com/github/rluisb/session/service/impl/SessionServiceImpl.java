@@ -6,6 +6,8 @@ import com.github.rluisb.session.domain.entity.SessionEntity;
 import com.github.rluisb.session.domain.model.Session;
 import com.github.rluisb.session.domain.model.Vote;
 import com.github.rluisb.session.domain.model.VotingResult;
+import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.repository.SessionRepository;
 import com.github.rluisb.session.service.AgendaService;
 import com.github.rluisb.session.service.SessionService;
@@ -42,15 +44,35 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public Optional<Session> executeVote(String sessionId, VoteDto voteDto) {
+    public Optional<Session> executeVote(String sessionId, VoteDto voteDto) throws AssociatedAlreadyVotedException, SessionHasEndedException {
         Vote newVote = Vote.buildFrom(voteDto);
-        return Stream.of(sessionId)
+
+        Optional<Session> session = Stream.of(sessionId)
                 .filter(Objects::nonNull)
                 .map(sessionRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Session::buildFrom)
-                .map(session -> session.addVote(newVote))
+                .findFirst();
+
+        Stream.of(session)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(sessionForUpdate -> !sessionForUpdate.isOpenForVote())
+                .findFirst()
+                .orElseThrow(SessionHasEndedException::new);
+
+        Stream.of(session)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(sessionForUpdate -> sessionForUpdate.canAssociateVote(newVote))
+                .findFirst()
+                .orElseThrow(AssociatedAlreadyVotedException::new);
+
+        return Stream.of(session)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(sessionForUpdate -> sessionForUpdate.addVote(newVote))
                 .map(SessionEntity::buildFrom)
                 .map(sessionRepository::save)
                 .map(Session::buildFrom)

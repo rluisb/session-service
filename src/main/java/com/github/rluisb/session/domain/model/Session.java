@@ -105,7 +105,6 @@ public class Session implements Serializable {
 
     public Session addVote(Vote vote) {
         Collection<Vote> updatedVotes = Stream.of(vote)
-                .filter(this::canAssociateVote)
                 .collect(Collectors.toCollection(this::getVotes));
 
         return new Session(this, updatedVotes);
@@ -115,9 +114,13 @@ public class Session implements Serializable {
         return this.agenda.updateStatus(newStatus);
     }
 
-    private Boolean canAssociateVote(Vote vote) {
+    public Boolean canAssociateVote(Vote vote) {
         return this.votes.stream()
                 .noneMatch(oldVote -> oldVote.getAssociateId().equals(vote.getAssociateId()));
+    }
+
+    public Boolean isOpenForVote() {
+        return this.endTime.isAfter(LocalDateTime.now());
     }
 
     public static Session buildFrom(Agenda agenda, DurationTime duration) {

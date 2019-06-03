@@ -2,10 +2,13 @@ package com.github.rluisb.session.api;
 
 import com.github.rluisb.session.api.dto.SessionDto;
 import com.github.rluisb.session.api.dto.VoteDto;
+import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.service.SessionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -20,7 +23,7 @@ public class SessionApi {
     }
 
     @PostMapping("/sessions")
-    public ResponseEntity<?> openVotingSession(@RequestBody SessionDto sessionDto) {
+    public ResponseEntity<?> openVotingSession(@Valid @RequestBody SessionDto sessionDto) {
         return Stream.of(sessionDto)
                 .filter(Objects::nonNull)
                 .map(sessionService::openSession)
@@ -33,7 +36,8 @@ public class SessionApi {
 
     @PatchMapping("/sessions/{id}/vote")
     public ResponseEntity<?> executeVoteForSession(@PathVariable("id") String sessionId,
-                                                   @RequestBody VoteDto voteDto) {
+                                                   @Valid @RequestBody VoteDto voteDto)
+            throws AssociatedAlreadyVotedException, SessionHasEndedException {
         return Stream.of(sessionService.executeVote(sessionId, voteDto))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
