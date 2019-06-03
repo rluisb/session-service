@@ -8,6 +8,7 @@ import com.github.rluisb.session.domain.model.Vote;
 import com.github.rluisb.session.domain.model.VotingResult;
 import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionAlreadyNotExistsException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.repository.SessionRepository;
 import com.github.rluisb.session.service.AgendaService;
@@ -86,10 +87,14 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public Optional<VotingResult> generateVotingResult(String sessionId) {
-        return Stream.of(sessionId)
+    public Optional<VotingResult> generateVotingResult(String sessionId) throws SessionAlreadyNotExistsException {
+        Optional<SessionEntity> sessionEntity = Stream.of(sessionId)
                 .filter(Objects::nonNull)
                 .map(sessionRepository::findById)
+                .findFirst()
+                .orElseThrow(SessionAlreadyNotExistsException::new);
+
+        return Stream.of(sessionEntity)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Session::buildFrom)

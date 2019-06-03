@@ -1,6 +1,7 @@
 package com.github.rluisb.session.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.rluisb.session.domain.entity.SessionEntity;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ public class Session implements Serializable {
     private LocalDateTime startTime;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime endTime;
+    @JsonIgnore
     private DurationTime duration;
 
 

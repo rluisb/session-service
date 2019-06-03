@@ -6,6 +6,7 @@ import com.github.rluisb.session.domain.model.Session;
 import com.github.rluisb.session.domain.model.VotingResult;
 import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionAlreadyNotExistsException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface SessionService {
 
     Optional<Session> executeVote(String sessionId, VoteDto vote) throws AssociatedAlreadyVotedException, SessionHasEndedException;
 
-    Optional<VotingResult> generateVotingResult(String sessionId);
+    Optional<VotingResult> generateVotingResult(String sessionId) throws SessionAlreadyNotExistsException;
 
     List<Session> getAllSessions();
 

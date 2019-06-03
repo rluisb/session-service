@@ -4,6 +4,7 @@ import com.github.rluisb.session.api.dto.SessionDto;
 import com.github.rluisb.session.api.dto.VoteDto;
 import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionAlreadyNotExistsException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.service.SessionService;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,8 @@ public class SessionApi {
     }
 
     @GetMapping("/sessions/{id}")
-    public ResponseEntity<?> getVotingResultForSession(@PathVariable("id") String sessionId) {
+    public ResponseEntity<?> getVotingResultForSession(@PathVariable("id") String sessionId)
+            throws SessionAlreadyNotExistsException {
         return Stream.of(sessionService.generateVotingResult(sessionId))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

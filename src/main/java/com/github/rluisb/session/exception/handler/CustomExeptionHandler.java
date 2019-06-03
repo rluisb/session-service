@@ -3,6 +3,7 @@ package com.github.rluisb.session.exception.handler;
 import com.github.rluisb.session.exception.ErrorResponse;
 import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
+import com.github.rluisb.session.exception.type.SessionAlreadyNotExistsException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -60,6 +61,13 @@ public class CustomExeptionHandler {
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
     public ErrorResponse handleAgendaAlreadyBeenVotedException(final AgendaAlreadyBeenVotedException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(SessionAlreadyNotExistsException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ResponseBody
+    public ErrorResponse handleSessionAlreadyNotExistsException(final SessionAlreadyNotExistsException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
