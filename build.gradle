@@ -1,0 +1,100 @@
+buildscript {
+	ext {
+		springBootVersion = '2.1.5.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+		maven { url 'http://repository.jboss.org/maven2/' }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("se.transmode.gradle:gradle-docker:1.2")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker'
+
+group = 'com.github.rluisb'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "Greenwich.SR1")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'io.springfox:springfox-swagger2:2.8.0'
+	implementation 'io.springfox:springfox-swagger-ui:2.8.0'
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+	implementation 'org.apache.httpcomponents:httpclient:4.4.1'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation 'io.cucumber:cucumber-java8:2.3.1'
+	testImplementation 'io.cucumber:cucumber-spring:2.3.1'
+	testImplementation 'io.cucumber:cucumber-junit:2.3.1'
+	testImplementation 'info.cukes:gherkin:2.12.2'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+configurations {
+	cucumberRuntime {
+		extendsFrom testRuntime
+	}
+}
+
+task cucumber() {
+	dependsOn assemble, compileTestJava
+	doLast {
+		javaexec {
+			main = "cucumber.api.cli.Main"
+			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+			args = ['--plugin', 'pretty', '--glue', 'com.github.rluisb.session.', 'src/test/resources/features']
+		}
+	}
+}
+
+application {
+	mainClassName = 'com.github.rluisb.session.SessionServiceApplication'
+}
+
+distDocker {
+	dryRun = true
+	exposePort(8081)
+	setEnvironment('JAVA_OPTS', "-Xmx1024m -Xms1024m -Djava.security.egd=file:/dev/./urandom -Duser.timezone=America/Sao_Paulo")
+}
+
+task distDockerLocal(type: Docker) {
+	dryRun = false
+	addFile("${project.buildDir}/${project.libsDirName}/${rootProject.name}.jar", "/")
+	exposePort(8081)
+	setEnvironment('JAVA_OPTS', "-Xmx512m -Xms512m -Djava.security.egd=file:/dev/./urandom ")
+
+	entryPoint(['java', '-Djava.security.egd=file:/dev/./urandom', '-jar', '/' + "${rootProject.name}" + '.jar'])
+}
+
+distDocker.dependsOn(jar)
+distDockerLocal.dependsOn(build)
