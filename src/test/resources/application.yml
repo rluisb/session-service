@@ -3,8 +3,7 @@ server:
   servlet:
     context-path: /session-service/v1
 
-spring:
-  mongodb:
-    embedded:
-      storage:
-        database-dir: /tmp/agenda-test-data
+agenda:
+  service:
+    name: 'agenda-service'
+    url: 'http://127.0.0.1:8080/agenda-service/v1'

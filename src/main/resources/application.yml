@@ -13,4 +13,4 @@ spring:
 agenda:
   service:
     name: 'agenda-service'
-    url: 'http://localhost:8080/agenda-service/v1'
+    url: 'http://127.0.0.1:8080/agenda-service/v1'

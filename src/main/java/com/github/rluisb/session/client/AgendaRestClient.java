@@ -25,8 +25,8 @@ public class AgendaRestClient {
 
     public Agenda getAgendaById(String agendaId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         UriComponentsBuilder builder =

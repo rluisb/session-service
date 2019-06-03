@@ -48,7 +48,7 @@ public class SessionApi {
                 .get();
     }
 
-    @GetMapping("/sessions/{id}")
+    @GetMapping("/sessions/{id}/result")
     public ResponseEntity<?> getVotingResultForSession(@PathVariable("id") String sessionId)
             throws SessionAlreadyNotExistsException {
         return Stream.of(sessionService.generateVotingResult(sessionId))
