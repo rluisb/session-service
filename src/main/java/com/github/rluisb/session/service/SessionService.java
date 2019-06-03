@@ -17,8 +17,6 @@ public interface SessionService {
 
     Optional<Session> executeVote(String sessionId, VoteDto vote) throws AssociatedAlreadyVotedException, SessionHasEndedException;
 
-    Optional<Session> findSessionByAgendaId(String agendaId);
-
     Optional<VotingResult> generateVotingResult(String sessionId);
 
     List<Session> getAllSessions();

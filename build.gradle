@@ -44,6 +44,7 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.0'
     implementation 'org.apache.httpcomponents:httpclient:4.4.1'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation("com.github.tomakehurst:wiremock-standalone:2.23.2")
     testImplementation 'io.cucumber:cucumber-java8:2.3.1'
     testImplementation 'io.cucumber:cucumber-spring:2.3.1'
     testImplementation 'io.cucumber:cucumber-junit:2.3.1'

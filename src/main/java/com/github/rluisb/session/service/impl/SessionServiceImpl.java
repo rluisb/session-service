@@ -86,11 +86,6 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public Optional<Session> findSessionByAgendaId(String agendaId) {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<VotingResult> generateVotingResult(String sessionId) {
         return Stream.of(sessionId)
                 .filter(Objects::nonNull)
