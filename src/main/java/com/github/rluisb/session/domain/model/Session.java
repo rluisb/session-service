@@ -1,11 +1,13 @@
 package com.github.rluisb.session.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.github.rluisb.session.domain.entity.SessionEntity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,5 +118,17 @@ public class Session implements Serializable {
     private Boolean canAssociateVote(Vote vote) {
         return this.votes.stream()
                 .noneMatch(oldVote -> oldVote.getAssociateId().equals(vote.getAssociateId()));
+    }
+
+    public static Session buildFrom(Agenda agenda, DurationTime duration) {
+        if (Objects.isNull(duration)) {
+            return new Session(agenda);
+        }
+        return new Session(agenda, duration);
+    }
+
+    public static Session buildFrom(SessionEntity sessionEntity) {
+        return new Session(sessionEntity.getId(), sessionEntity.getAgenda(), sessionEntity.getVotes(),
+                sessionEntity.getStartTime(), sessionEntity.getEndTime(), sessionEntity.getDuration());
     }
 }

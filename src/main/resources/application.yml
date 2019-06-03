@@ -9,3 +9,8 @@ spring:
       host: localhost
       port: 27017
       database: session
+
+agenda:
+  service:
+    name: 'agenda-service'
+    url: 'http://localhost:8080/agenda-service/v1'
