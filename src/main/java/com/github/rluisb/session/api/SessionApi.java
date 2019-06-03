@@ -2,6 +2,7 @@ package com.github.rluisb.session.api;
 
 import com.github.rluisb.session.api.dto.SessionDto;
 import com.github.rluisb.session.api.dto.VoteDto;
+import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.service.SessionService;
@@ -23,10 +24,10 @@ public class SessionApi {
     }
 
     @PostMapping("/sessions")
-    public ResponseEntity<?> openVotingSession(@Valid @RequestBody SessionDto sessionDto) {
-        return Stream.of(sessionDto)
+    public ResponseEntity<?> openVotingSession(@Valid @RequestBody SessionDto sessionDto)
+            throws AgendaAlreadyBeenVotedException {
+        return Stream.of(sessionService.openSession(sessionDto))
                 .filter(Objects::nonNull)
-                .map(sessionService::openSession)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ResponseEntity::ok)

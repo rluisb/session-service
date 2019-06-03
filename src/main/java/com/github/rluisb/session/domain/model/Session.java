@@ -110,10 +110,6 @@ public class Session implements Serializable {
         return new Session(this, updatedVotes);
     }
 
-    private Agenda updateAgendaStatus(AgendaStatus newStatus) {
-        return this.agenda.updateStatus(newStatus);
-    }
-
     public Boolean canAssociateVote(Vote vote) {
         return this.votes.stream()
                 .noneMatch(oldVote -> oldVote.getAssociateId().equals(vote.getAssociateId()));

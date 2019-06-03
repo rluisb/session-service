@@ -6,6 +6,7 @@ import com.github.rluisb.session.domain.entity.SessionEntity;
 import com.github.rluisb.session.domain.model.Session;
 import com.github.rluisb.session.domain.model.Vote;
 import com.github.rluisb.session.domain.model.VotingResult;
+import com.github.rluisb.session.exception.type.AgendaAlreadyBeenVotedException;
 import com.github.rluisb.session.exception.type.AssociatedAlreadyVotedException;
 import com.github.rluisb.session.exception.type.SessionHasEndedException;
 import com.github.rluisb.session.repository.SessionRepository;
@@ -32,7 +33,14 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public Optional<Session> openSession(SessionDto sessionDto) {
+    public Optional<Session> openSession(SessionDto sessionDto) throws AgendaAlreadyBeenVotedException {
+        Stream.of(sessionDto)
+                .filter(Objects::nonNull)
+                .map(SessionDto::getAgendaId)
+                .map(sessionRepository::findByAgenda_Id)
+                .findFirst()
+                .orElseThrow(AgendaAlreadyBeenVotedException::new);
+
         return Stream.of(agendaService.getAgendaById(sessionDto.getAgendaId()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -63,20 +71,23 @@ public class SessionServiceImpl implements SessionService {
                 .orElseThrow(SessionHasEndedException::new);
 
         Stream.of(session)
-                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(sessionForUpdate -> sessionForUpdate.canAssociateVote(newVote))
                 .findFirst()
                 .orElseThrow(AssociatedAlreadyVotedException::new);
 
         return Stream.of(session)
-                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(sessionForUpdate -> sessionForUpdate.addVote(newVote))
                 .map(SessionEntity::buildFrom)
                 .map(sessionRepository::save)
                 .map(Session::buildFrom)
                 .findFirst();
+    }
+
+    @Override
+    public Optional<Session> findSessionByAgendaId(String agendaId) {
+        return Optional.empty();
     }
 
     @Override
@@ -100,4 +111,5 @@ public class SessionServiceImpl implements SessionService {
                 .map(Session::buildFrom)
                 .collect(Collectors.toList());
     }
+
 }
